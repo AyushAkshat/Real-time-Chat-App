@@ -1,0 +1,1745 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>ChatFlow - Real-Time Chat App</title>
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f7;
+            height: 100vh;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        button,
+        input {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+
+        /* =========================
+           MAIN APP
+        ========================= */
+
+        .chat-app {
+            display: flex;
+            height: 100vh;
+            max-width: 1500px;
+            margin: auto;
+            background: white;
+        }
+
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            width: 340px;
+            border-right: 1px solid #ddd;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+        }
+
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 50%;
+            background: #f1f5f9;
+            font-size: 18px;
+        }
+
+
+        .icon-btn:hover {
+            background: #dbeafe;
+        }
+
+
+        /* SEARCH */
+
+        .search-container {
+            padding: 15px;
+        }
+
+
+        .search {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            outline: none;
+            border-radius: 8px;
+            background: #f1f5f9;
+            font-size: 14px;
+        }
+
+
+        /* CONTACTS */
+
+        .contacts {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+
+        .contact {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 14px 18px;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+
+        .contact:hover {
+            background: #f1f5f9;
+        }
+
+
+        .contact.active {
+            background: #e8f0ff;
+        }
+
+
+        .avatar-container {
+            position: relative;
+        }
+
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #2563eb;
+            color: white;
+
+            font-weight: bold;
+        }
+
+
+        .online-dot {
+            position: absolute;
+
+            width: 12px;
+            height: 12px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+
+            border: 2px solid white;
+
+            right: 0;
+            bottom: 1px;
+        }
+
+
+        .contact-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+
+        .contact-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+
+        .last-message {
+            color: #64748b;
+            font-size: 13px;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        .contact-time {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+
+        /* =========================
+           CHAT AREA
+        ========================= */
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+
+        /* CHAT HEADER */
+
+        .chat-header {
+            height: 75px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 12px 20px;
+
+            border-bottom: 1px solid #ddd;
+        }
+
+
+        .chat-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+
+        .chat-user h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+
+        .status {
+            font-size: 12px;
+            color: #22c55e;
+        }
+
+
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+
+        /* =========================
+           MESSAGES
+        ========================= */
+
+        .messages {
+            flex: 1;
+
+            padding: 25px;
+
+            overflow-y: auto;
+
+            background:
+                linear-gradient(
+                    rgba(241,245,249,0.7),
+                    rgba(241,245,249,0.7)
+                );
+        }
+
+
+        .date-divider {
+            text-align: center;
+
+            margin: 10px 0 20px;
+
+            color: #94a3b8;
+
+            font-size: 12px;
+        }
+
+
+        .message-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+
+        .message-row.sent {
+            justify-content: flex-end;
+        }
+
+
+        .message {
+            max-width: 65%;
+
+            padding: 11px 14px;
+
+            border-radius: 12px;
+
+            background: white;
+
+            box-shadow:
+                0 1px 3px rgba(0,0,0,0.08);
+        }
+
+
+        .sent .message {
+            background: #2563eb;
+            color: white;
+
+            border-bottom-right-radius: 3px;
+        }
+
+
+        .received .message {
+            border-bottom-left-radius: 3px;
+        }
+
+
+        .message-text {
+            line-height: 1.45;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+
+        .message-time {
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.65;
+            text-align: right;
+        }
+
+
+        /* TYPING */
+
+        .typing {
+            display: none;
+            padding: 0 25px 10px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+
+        .typing.show {
+            display: block;
+        }
+
+
+        /* =========================
+           MESSAGE INPUT
+        ========================= */
+
+        .message-input-area {
+            min-height: 75px;
+
+            padding: 15px 20px;
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            border-top: 1px solid #ddd;
+
+            background: white;
+        }
+
+
+        .message-input {
+            flex: 1;
+
+            border: none;
+            outline: none;
+
+            background: #f1f5f9;
+
+            padding: 13px 16px;
+
+            border-radius: 25px;
+
+            font-size: 14px;
+        }
+
+
+        .send-btn {
+            width: 45px;
+            height: 45px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background: #2563eb;
+
+            color: white;
+
+            font-size: 18px;
+        }
+
+
+        .send-btn:hover {
+            background: #1d4ed8;
+        }
+
+
+        .emoji-btn {
+            border: none;
+            background: transparent;
+            font-size: 21px;
+        }
+
+
+        /* =========================
+           EMPTY STATE
+        ========================= */
+
+        .empty-state {
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            align-items: center;
+            justify-content: center;
+
+            color: #64748b;
+
+            text-align: center;
+        }
+
+
+        .empty-state .big-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        .back-btn {
+            display: none;
+            border: none;
+            background: transparent;
+            font-size: 22px;
+        }
+
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .chat-area {
+                display: none;
+            }
+
+            .chat-app.chat-open .sidebar {
+                display: none;
+            }
+
+            .chat-app.chat-open .chat-area {
+                display: flex;
+            }
+
+            .back-btn {
+                display: block;
+            }
+
+            .chat-header {
+                padding-left: 10px;
+            }
+
+            .message {
+                max-width: 82%;
+            }
+
+        }
+
+
+        /* =========================
+           DARK MODE
+        ========================= */
+
+        body.dark {
+            background: #0f172a;
+            color: white;
+        }
+
+
+        body.dark .chat-app,
+        body.dark .sidebar,
+        body.dark .chat-header,
+        body.dark .message-input-area {
+            background: #1e293b;
+            color: white;
+        }
+
+
+        body.dark .sidebar {
+            border-color: #334155;
+        }
+
+
+        body.dark .chat-header,
+        body.dark .message-input-area {
+            border-color: #334155;
+        }
+
+
+        body.dark .search,
+        body.dark .message-input {
+            background: #334155;
+            color: white;
+        }
+
+
+        body.dark .contact:hover {
+            background: #334155;
+        }
+
+
+        body.dark .contact.active {
+            background: #334155;
+        }
+
+
+        body.dark .messages {
+            background: #0f172a;
+        }
+
+
+        body.dark .received .message {
+            background: #334155;
+            color: white;
+        }
+
+
+        body.dark .icon-btn {
+            background: #334155;
+            color: white;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="chat-app" id="chatApp">
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar">
+
+
+        <div class="sidebar-header">
+
+            <div class="logo">
+                ChatFlow
+            </div>
+
+
+            <div class="header-buttons">
+
+                <button
+                    class="icon-btn"
+                    id="newChatBtn"
+                    title="New Chat"
+                >
+                    ✏️
+                </button>
+
+
+                <button
+                    class="icon-btn"
+                    id="themeBtn"
+                    title="Dark Mode"
+                >
+                    🌙
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- SEARCH -->
+
+        <div class="search-container">
+
+            <input
+                type="text"
+                class="search"
+                id="searchInput"
+                placeholder="🔍 Search chats..."
+            >
+
+        </div>
+
+
+        <!-- CONTACTS -->
+
+        <div
+            class="contacts"
+            id="contacts"
+        ></div>
+
+
+    </aside>
+
+
+    <!-- =========================
+         CHAT AREA
+    ========================== -->
+
+    <section class="chat-area">
+
+
+        <!-- HEADER -->
+
+        <div class="chat-header">
+
+            <button
+                class="back-btn"
+                id="backBtn"
+            >
+                ←
+            </button>
+
+
+            <div class="chat-user">
+
+                <div class="avatar-container">
+
+                    <div
+                        class="avatar"
+                        id="chatAvatar"
+                    >
+                        AU
+                    </div>
+
+                    <div
+                        class="online-dot"
+                        id="onlineDot"
+                    ></div>
+
+                </div>
+
+
+                <div>
+
+                    <h3 id="chatName">
+                        Select a chat
+                    </h3>
+
+                    <div
+                        class="status"
+                        id="chatStatus"
+                    >
+                        Online
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="chat-actions">
+
+                <button
+                    class="icon-btn"
+                    title="Call"
+                >
+                    📞
+                </button>
+
+                <button
+                    class="icon-btn"
+                    title="Video"
+                >
+                    📹
+                </button>
+
+                <button
+                    class="icon-btn"
+                    id="clearBtn"
+                    title="Clear Chat"
+                >
+                    🗑️
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- MESSAGES -->
+
+        <div
+            class="messages"
+            id="messages"
+        >
+
+            <div class="empty-state">
+
+                <div class="big-icon">
+                    💬
+                </div>
+
+                <h2>
+                    Welcome to ChatFlow
+                </h2>
+
+                <p>
+                    Select a contact to start chatting.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- TYPING -->
+
+        <div
+            class="typing"
+            id="typing"
+        >
+            Someone is typing...
+        </div>
+
+
+        <!-- INPUT -->
+
+        <div class="message-input-area">
+
+            <button
+                class="emoji-btn"
+                id="emojiBtn"
+            >
+                😊
+            </button>
+
+
+            <input
+                type="text"
+                class="message-input"
+                id="messageInput"
+                placeholder="Type a message..."
+            >
+
+
+            <button
+                class="send-btn"
+                id="sendBtn"
+            >
+                ➤
+            </button>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+
+
+    /* =========================
+       CONTACT DATA
+    ========================== */
+
+    const contacts = [
+
+        {
+            id: 1,
+            name: "Rahul Kumar",
+            initials: "RK",
+            online: true,
+            lastMessage: "See you tomorrow!",
+            time: "10:30 AM"
+        },
+
+        {
+            id: 2,
+            name: "Priya Sharma",
+            initials: "PS",
+            online: true,
+            lastMessage: "That sounds great 👍",
+            time: "09:45 AM"
+        },
+
+        {
+            id: 3,
+            name: "Aditya Singh",
+            initials: "AS",
+            online: false,
+            lastMessage: "Thanks for your help.",
+            time: "Yesterday"
+        },
+
+        {
+            id: 4,
+            name: "Neha Verma",
+            initials: "NV",
+            online: true,
+            lastMessage: "Let's discuss the project.",
+            time: "Yesterday"
+        },
+
+        {
+            id: 5,
+            name: "Project Team",
+            initials: "PT",
+            online: true,
+            lastMessage: "Meeting at 4 PM",
+            time: "Monday"
+        },
+
+        {
+            id: 6,
+            name: "Aman Gupta",
+            initials: "AG",
+            online: false,
+            lastMessage: "Okay 👍",
+            time: "Sunday"
+        }
+
+    ];
+
+
+    /* =========================
+       STATE
+    ========================== */
+
+    let selectedContact = null;
+
+
+    let messages =
+        JSON.parse(
+            localStorage.getItem(
+                "chatMessages"
+            )
+        ) || {};
+
+
+    /* =========================
+       ELEMENTS
+    ========================== */
+
+    const chatApp =
+        document.getElementById(
+            "chatApp"
+        );
+
+
+    const contactsContainer =
+        document.getElementById(
+            "contacts"
+        );
+
+
+    const messagesContainer =
+        document.getElementById(
+            "messages"
+        );
+
+
+    const messageInput =
+        document.getElementById(
+            "messageInput"
+        );
+
+
+    const typing =
+        document.getElementById(
+            "typing"
+        );
+
+
+    /* =========================
+       RENDER CONTACTS
+    ========================== */
+
+    function renderContacts(
+        filter = ""
+    ) {
+
+        contactsContainer.innerHTML =
+            "";
+
+
+        const filtered =
+            contacts.filter(
+                contact =>
+                    contact.name
+                        .toLowerCase()
+                        .includes(
+                            filter.toLowerCase()
+                        )
+            );
+
+
+        filtered.forEach(
+            contact => {
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                div.className =
+                    "contact";
+
+
+                if (
+                    selectedContact &&
+                    selectedContact.id ===
+                    contact.id
+                ) {
+
+                    div.classList.add(
+                        "active"
+                    );
+
+                }
+
+
+                div.innerHTML = `
+
+                    <div class="avatar-container">
+
+                        <div class="avatar">
+                            ${contact.initials}
+                        </div>
+
+                        ${
+                            contact.online
+                            ?
+                            '<div class="online-dot"></div>'
+                            :
+                            ''
+                        }
+
+                    </div>
+
+
+                    <div class="contact-info">
+
+                        <div class="contact-name">
+                            ${contact.name}
+                        </div>
+
+                        <div class="last-message">
+                            ${contact.lastMessage}
+                        </div>
+
+                    </div>
+
+
+                    <div class="contact-time">
+                        ${contact.time}
+                    </div>
+
+                `;
+
+
+                div.addEventListener(
+                    "click",
+                    () => openChat(contact)
+                );
+
+
+                contactsContainer.appendChild(
+                    div
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =========================
+       OPEN CHAT
+    ========================== */
+
+    function openChat(contact) {
+
+        selectedContact =
+            contact;
+
+
+        document.getElementById(
+            "chatName"
+        ).textContent =
+            contact.name;
+
+
+        document.getElementById(
+            "chatAvatar"
+        ).textContent =
+            contact.initials;
+
+
+        document.getElementById(
+            "chatStatus"
+        ).textContent =
+            contact.online
+                ? "Online"
+                : "Offline";
+
+
+        document.getElementById(
+            "onlineDot"
+        ).style.display =
+            contact.online
+                ? "block"
+                : "none";
+
+
+        chatApp.classList.add(
+            "chat-open"
+        );
+
+
+        renderMessages();
+
+        renderContacts();
+
+        messageInput.focus();
+
+    }
+
+
+    /* =========================
+       RENDER MESSAGES
+    ========================== */
+
+    function renderMessages() {
+
+        if (!selectedContact)
+            return;
+
+
+        const id =
+            selectedContact.id;
+
+
+        if (!messages[id]) {
+
+            messages[id] = [
+
+                {
+                    text:
+                        "Hey! 👋 How are you?",
+                    type:
+                        "received",
+                    time:
+                        "10:00 AM"
+                },
+
+                {
+                    text:
+                        "I'm doing great! How about you?",
+                    type:
+                        "sent",
+                    time:
+                        "10:02 AM"
+                }
+
+            ];
+
+        }
+
+
+        messagesContainer.innerHTML =
+            `
+
+                <div class="date-divider">
+                    Today
+                </div>
+
+            `;
+
+
+        messages[id].forEach(
+            message => {
+
+                addMessageToDOM(
+                    message
+                );
+
+            }
+        );
+
+
+        scrollToBottom();
+
+    }
+
+
+    /* =========================
+       ADD MESSAGE TO DOM
+    ========================== */
+
+    function addMessageToDOM(
+        message
+    ) {
+
+        const row =
+            document.createElement(
+                "div"
+            );
+
+
+        row.className =
+            "message-row " +
+            message.type;
+
+
+        row.innerHTML = `
+
+            <div class="message">
+
+                <div class="message-text">
+                    ${escapeHTML(
+                        message.text
+                    )}
+                </div>
+
+                <div class="message-time">
+                    ${message.time}
+                    ${
+                        message.type === "sent"
+                        ? " ✓✓"
+                        : ""
+                    }
+                </div>
+
+            </div>
+
+        `;
+
+
+        messagesContainer.appendChild(
+            row
+        );
+
+    }
+
+
+    /* =========================
+       SEND MESSAGE
+    ========================== */
+
+    function sendMessage() {
+
+        const text =
+            messageInput.value.trim();
+
+
+        if (
+            !text ||
+            !selectedContact
+        )
+            return;
+
+
+        const now =
+            new Date();
+
+
+        const time =
+            now.toLocaleTimeString(
+                [],
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+
+        const message = {
+
+            text: text,
+
+            type: "sent",
+
+            time: time
+
+        };
+
+
+        if (
+            !messages[
+                selectedContact.id
+            ]
+        ) {
+
+            messages[
+                selectedContact.id
+            ] = [];
+
+        }
+
+
+        messages[
+            selectedContact.id
+        ].push(message);
+
+
+        saveMessages();
+
+
+        addMessageToDOM(
+            message
+        );
+
+
+        messageInput.value =
+            "";
+
+
+        scrollToBottom();
+
+
+        simulateReply();
+
+    }
+
+
+    /* =========================
+       SIMULATE REPLY
+    ========================== */
+
+    function simulateReply() {
+
+        if (!selectedContact)
+            return;
+
+
+        typing.classList.add(
+            "show"
+        );
+
+
+        setTimeout(
+            function() {
+
+                typing.classList.remove(
+                    "show"
+                );
+
+
+                const replies = [
+
+                    "Sounds good! 👍",
+
+                    "Okay, I'll check it.",
+
+                    "That's great!",
+
+                    "Sure! 😊",
+
+                    "Got it!",
+
+                    "Thanks for letting me know.",
+
+                    "Let's discuss it later."
+
+                ];
+
+
+                const reply =
+                    replies[
+                        Math.floor(
+                            Math.random() *
+                            replies.length
+                        )
+                    ];
+
+
+                const now =
+                    new Date();
+
+
+                const time =
+                    now.toLocaleTimeString(
+                        [],
+                        {
+                            hour:
+                                "2-digit",
+                            minute:
+                                "2-digit"
+                        }
+                    );
+
+
+                const message = {
+
+                    text:
+                        reply,
+
+                    type:
+                        "received",
+
+                    time:
+                        time
+
+                };
+
+
+                if (
+                    !messages[
+                        selectedContact.id
+                    ]
+                ) {
+
+                    messages[
+                        selectedContact.id
+                    ] = [];
+
+                }
+
+
+                messages[
+                    selectedContact.id
+                ].push(message);
+
+
+                saveMessages();
+
+
+                addMessageToDOM(
+                    message
+                );
+
+
+                scrollToBottom();
+
+
+                selectedContact.lastMessage =
+                    reply;
+
+                selectedContact.time =
+                    time;
+
+
+                renderContacts();
+
+            },
+
+            1200
+
+        );
+
+    }
+
+
+    /* =========================
+       SAVE MESSAGES
+    ========================== */
+
+    function saveMessages() {
+
+        localStorage.setItem(
+            "chatMessages",
+            JSON.stringify(
+                messages
+            )
+        );
+
+    }
+
+
+    /* =========================
+       SCROLL
+    ========================== */
+
+    function scrollToBottom() {
+
+        messagesContainer.scrollTop =
+            messagesContainer.scrollHeight;
+
+    }
+
+
+    /* =========================
+       ENTER TO SEND
+    ========================== */
+
+    messageInput.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                event.preventDefault();
+
+                sendMessage();
+
+            }
+
+        }
+    );
+
+
+    /* =========================
+       SEND BUTTON
+    ========================== */
+
+    document
+        .getElementById(
+            "sendBtn"
+        )
+        .addEventListener(
+            "click",
+            sendMessage
+        );
+
+
+    /* =========================
+       SEARCH
+    ========================== */
+
+    document
+        .getElementById(
+            "searchInput"
+        )
+        .addEventListener(
+            "input",
+            function() {
+
+                renderContacts(
+                    this.value
+                );
+
+            }
+        );
+
+
+    /* =========================
+       EMOJI BUTTON
+    ========================== */
+
+    document
+        .getElementById(
+            "emojiBtn"
+        )
+        .addEventListener(
+            "click",
+            function() {
+
+                const emojis = [
+                    "😀",
+                    "😂",
+                    "😍",
+                    "👍",
+                    "❤️",
+                    "🔥",
+                    "🎉",
+                    "😊"
+                ];
+
+
+                const emoji =
+                    emojis[
+                        Math.floor(
+                            Math.random() *
+                            emojis.length
+                        )
+                    ];
+
+
+                messageInput.value +=
+                    emoji;
+
+
+                messageInput.focus();
+
+            }
+        );
+
+
+    /* =========================
+       CLEAR CHAT
+    ========================== */
+
+    document
+        .getElementById(
+            "clearBtn"
+        )
+        .addEventListener(
+            "click",
+            function() {
+
+                if (
+                    !selectedContact
+                )
+                    return;
+
+
+                const confirmClear =
+                    confirm(
+                        "Clear this chat?"
+                    );
+
+
+                if (
+                    !confirmClear
+                )
+                    return;
+
+
+                messages[
+                    selectedContact.id
+                ] = [];
+
+
+                saveMessages();
+
+                renderMessages();
+
+            }
+        );
+
+
+    /* =========================
+       DARK MODE
+    ========================== */
+
+    const themeBtn =
+        document.getElementById(
+            "themeBtn"
+        );
+
+
+    if (
+        localStorage.getItem(
+            "chatTheme"
+        ) === "dark"
+    ) {
+
+        document.body.classList.add(
+            "dark"
+        );
+
+        themeBtn.textContent =
+            "☀️";
+
+    }
+
+
+    themeBtn.addEventListener(
+        "click",
+        function() {
+
+            document.body.classList.toggle(
+                "dark"
+            );
+
+
+            const dark =
+                document.body.classList.contains(
+                    "dark"
+                );
+
+
+            themeBtn.textContent =
+                dark
+                    ? "☀️"
+                    : "🌙";
+
+
+            localStorage.setItem(
+                "chatTheme",
+                dark
+                    ? "dark"
+                    : "light"
+            );
+
+        }
+    );
+
+
+    /* =========================
+       MOBILE BACK BUTTON
+    ========================== */
+
+    document
+        .getElementById(
+            "backBtn"
+        )
+        .addEventListener(
+            "click",
+            function() {
+
+                chatApp.classList.remove(
+                    "chat-open"
+                );
+
+            }
+        );
+
+
+    /* =========================
+       NEW CHAT
+    ========================== */
+
+    document
+        .getElementById(
+            "newChatBtn"
+        )
+        .addEventListener(
+            "click",
+            function() {
+
+                const name =
+                    prompt(
+                        "Enter contact name:"
+                    );
+
+
+                if (!name)
+                    return;
+
+
+                const newContact = {
+
+                    id:
+                        Date.now(),
+
+                    name:
+                        name,
+
+                    initials:
+                        name
+                            .split(" ")
+                            .map(
+                                word =>
+                                    word[0]
+                            )
+                            .join("")
+                            .substring(
+                                0,
+                                2
+                            )
+                            .toUpperCase(),
+
+                    online:
+                        true,
+
+                    lastMessage:
+                        "New conversation",
+
+                    time:
+                        "Now"
+
+                };
+
+
+                contacts.unshift(
+                    newContact
+                );
+
+
+                renderContacts();
+
+                openChat(
+                    newContact
+                );
+
+            }
+        );
+
+
+    /* =========================
+       ESCAPE HTML
+    ========================== */
+
+    function escapeHTML(
+        text
+    ) {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+
+        div.textContent =
+            text;
+
+
+        return div.innerHTML;
+
+    }
+
+
+    /* =========================
+       INITIALIZE
+    ========================== */
+
+    renderContacts();
+
+</script>
+
+
+</body>
+
+</html>
+```
